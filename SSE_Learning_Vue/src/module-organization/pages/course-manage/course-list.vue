@@ -34,6 +34,13 @@
           :value="item.code"
         ></el-option>
       </el-select>
+      <!-- 重置按钮 -->
+       <el-button
+        type="primary"
+        size="medium"
+        class="btn-reset el-button"
+        @click="handleReset"
+      >重置</el-button>
     </div>
 
     <!-- 数据列表 -->
@@ -216,7 +223,8 @@ export default class extends mixins(MixinTools) {
   // api post body
   private listQueryData = {
     courseName: '',
-    auditStatus: ''
+    auditStatus: '',
+    publishStatus: ''
   }
 
   // 业务函数
@@ -337,6 +345,14 @@ export default class extends mixins(MixinTools) {
   }
   private handleShowTypeDlg() {
     this.typeDialogVisible = true
+  }
+  // 重置课程搜索条件
+  private handleReset() {
+    this.listQueryData = {
+      courseName: '',
+      auditStatus: '',
+      publishStatus: ''
+    }
   }
 
   // 监控 watch

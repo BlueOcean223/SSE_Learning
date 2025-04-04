@@ -2,7 +2,7 @@
   <div class="nav-bar">
     <el-tabs class="el-tabs" v-model="activeName" type="border-card" @tab-click="handleClick">
       <el-tab-pane label="网站首页" >
-        <a href="http://www.51xuecheng.cn">学成在线首页</a>
+        <a href="http://www.51xuecheng.cn">软工学习首页</a>
        
       </el-tab-pane>
       <el-tab-pane label="机构管理" name="first">
