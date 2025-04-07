@@ -8,16 +8,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xuecheng.base.exception.XueChengPlusException;
 import com.xuecheng.base.model.PageParams;
 import com.xuecheng.base.model.PageResult;
-import com.xuecheng.content.mapper.CourseBaseMapper;
-import com.xuecheng.content.mapper.CourseCategoryMapper;
-import com.xuecheng.content.mapper.CourseMarketMapper;
+import com.xuecheng.content.mapper.*;
 import com.xuecheng.content.model.dto.AddCourseDto;
 import com.xuecheng.content.model.dto.CourseBaseInfoDto;
 import com.xuecheng.content.model.dto.EditCourseDto;
 import com.xuecheng.content.model.dto.QueryCourseParamsDto;
-import com.xuecheng.content.model.po.CourseBase;
-import com.xuecheng.content.model.po.CourseCategory;
-import com.xuecheng.content.model.po.CourseMarket;
+import com.xuecheng.content.model.po.*;
 import com.xuecheng.content.service.CourseBaseInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -27,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -40,6 +37,15 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
 
     @Resource
     private CourseCategoryMapper courseCategoryMapper;
+
+    @Resource
+    private TeachplanMapper teachplanMapper;
+
+    @Resource
+    private TeachplanMediaMapper teachplanMediaMapper;
+
+    @Resource
+    private CourseTeacherMapper courseTeacherMapper;
 
     @Override
     public PageResult<CourseBase> queryCourseBaseList(PageParams pageParams, QueryCourseParamsDto courseParamsDto) {
@@ -197,5 +203,82 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
         }
         // 返回课程信息
         return getCourseBaseInfo(courseId);
+    }
+
+    /**
+     * 删除课程信息
+     * @param courseId 课程id
+     */
+    @Transactional
+    @Override
+    public void deleteCourseBase(Long courseId) {
+        if(courseId == null){
+            XueChengPlusException.cast("课程id为空，无法操作");
+        }
+        CourseBase courseBase = courseBaseMapper.selectById(courseId);
+        if(courseBase == null){
+            XueChengPlusException.cast("课程不存在,无法删除");
+        }
+        // 只有未提交的课程可以删除
+        if(!courseBase.getAuditStatus().equals("202002")){
+            XueChengPlusException.cast("只有未提交的课程可以删除");
+        }
+        // 删除课程基本信息
+        int result1 = courseBaseMapper.deleteById(courseId);
+        if(result1 <= 0){
+            XueChengPlusException.cast("删除课程基本信息失败");
+        }
+        // 删除课程营销信息
+        int result2 = courseMarketMapper.deleteById(courseId);
+        if(result2 <= 0){
+            XueChengPlusException.cast("删除课程营销信息失败");
+        }
+        // 删除课程计划
+        deleteTeachplanAndMedia(courseId);
+        // 删除课程教师信息
+        deleteTeacher(courseId);
+    }
+
+    // 删除课程计划和相关联的媒资
+    private void deleteTeachplanAndMedia(Long courseId){
+        LambdaQueryWrapper<Teachplan> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Teachplan::getCourseId,courseId);
+        List<Teachplan> teachplanList = teachplanMapper.selectList(queryWrapper);
+        if(teachplanList.isEmpty()){
+            // 课程计划不存在，不进行操作
+            return;
+        }
+        int result = teachplanMapper.delete(queryWrapper);
+        if(result <= 0){
+            XueChengPlusException.cast("删除课程计划失败");
+        }
+        // 删除相关的媒资信息
+        List<Long> teachplanIdList = teachplanList.stream().map(Teachplan::getId).collect(Collectors.toList());
+        LambdaQueryWrapper<TeachplanMedia> queryWrapper1 = new LambdaQueryWrapper<>();
+        queryWrapper1.in(TeachplanMedia::getTeachplanId,teachplanIdList);
+        // 查询媒资信息是否存在
+        List<TeachplanMedia> teachplanMediaList = teachplanMediaMapper.selectList(queryWrapper1);
+        if(teachplanMediaList.isEmpty()){
+            // 媒资信息不存在，不进行操作
+            return;
+        }
+        int result1 = teachplanMediaMapper.delete(queryWrapper1);
+        if(result1 <= 0){
+            XueChengPlusException.cast("删除课程媒资失败");
+        }
+    }
+    // 删除教师信息
+    private void deleteTeacher(Long courseId){
+        LambdaQueryWrapper<CourseTeacher> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(CourseTeacher::getCourseId,courseId);
+        List<CourseTeacher> courseTeacherList = courseTeacherMapper.selectList(queryWrapper);
+        if(courseTeacherList.isEmpty()){
+            // 教师信息不存在，不进行操作
+            return;
+        }
+        int result = courseTeacherMapper.delete(queryWrapper);
+        if(result <= 0){
+            XueChengPlusException.cast("删除教师信息失败");
+        }
     }
 }

@@ -20,4 +20,17 @@ public interface TeachplanService {
      * @param saveTeachplanDto 课程计划信息
      */
     public void saveTeachplan(SavaTeachplanDto saveTeachplanDto);
+
+    /**
+     * 删除课程计划章节
+     * @param teachplanId 课程计划id
+     */
+    void deleteTeachplan(Long teachplanId);
+
+    /**
+     * 课程计划上移下移
+     * @param moveType 上移下移类型
+     * @param teachplanId 课程计划id
+     */
+    void moveTeachplan(String moveType, Long teachplanId);
 }
