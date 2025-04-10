@@ -55,6 +55,8 @@ public class TeachplanServiceImpl implements TeachplanService {
             queryWrapper.eq(Teachplan::getCourseId,saveTeachplanDto.getCourseId())
                     .eq(Teachplan::getParentid,saveTeachplanDto.getParentid());
             List<Teachplan> teachplanList = teachplanMapper.selectList(queryWrapper);
+            // 按排序字段排序，确保列表最后一个元素的排序字段最大
+            teachplanList.sort(Comparator.comparingInt(Teachplan::getOrderby));
             Integer orderby = !teachplanList.isEmpty() ? teachplanList.get(teachplanList.size()-1).getOrderby()+1 : 1;
             teachplan.setOrderby(orderby);
 
