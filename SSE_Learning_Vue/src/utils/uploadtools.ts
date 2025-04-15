@@ -1,6 +1,6 @@
 import { upRegister, checkchunk, upChunk, mergeChunks } from '@/api/upload'
 import CryptoJS from 'crypto-js'
-export const uploadByPieces = ({ file, pieceSize = 2, success, error }:any) => {
+export const uploadByPieces = ({ file, pieceSize = 5, success, error }:any) => {
     // 上传过程中用到的变量
     let fileMD5 = ""; // md5加密文件的标识
     const chunkSize = pieceSize * 1024 * 1024; // 分片大小
@@ -35,7 +35,12 @@ export const uploadByPieces = ({ file, pieceSize = 2, success, error }:any) => {
         }
         // 上传前提交注册 - 接口调用
         upRegister(params).then(res => {
-          if (res.code == 0){
+          // 文件存在，只显示上传完成，但不进行上传
+          if (res.result == true){
+            file.percentage = 100;
+          }
+          // 文件不存在，进行上传
+          if (res.code == 0 && res.result == false){
             readChunkMD5(0)
           }
         }).catch(err => error(err))
