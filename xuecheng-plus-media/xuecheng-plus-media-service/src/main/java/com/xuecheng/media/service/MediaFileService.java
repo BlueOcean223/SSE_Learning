@@ -11,6 +11,7 @@ import io.minio.UploadObjectArgs;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
@@ -54,4 +55,10 @@ public interface MediaFileService {
 
  // 合并文件
  RestResponse mergeChunks(Long companyId, String fileMd5, String fileName, int chunkTotal);
+
+ // 上传minio
+ boolean addMediaFilesToMinIO(InputStream inputStream,String mimeType,String bucket, String objectName);
+
+ // 从minio下载文件
+ File downloadFileFromMinio(String bucket, String objectName);
 }

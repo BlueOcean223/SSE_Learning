@@ -9,10 +9,12 @@ import com.xuecheng.base.model.PageParams;
 import com.xuecheng.base.model.PageResult;
 import com.xuecheng.base.model.RestResponse;
 import com.xuecheng.media.mapper.MediaFilesMapper;
+import com.xuecheng.media.mapper.MediaProcessMapper;
 import com.xuecheng.media.model.dto.QueryMediaParamsDto;
 import com.xuecheng.media.model.dto.UploadFileParamsDto;
 import com.xuecheng.media.model.dto.UploadFileResultDto;
 import com.xuecheng.media.model.po.MediaFiles;
+import com.xuecheng.media.model.po.MediaProcess;
 import com.xuecheng.media.service.MediaFileService;
 import io.minio.*;
 import io.minio.messages.DeleteError;
@@ -20,6 +22,7 @@ import io.minio.messages.DeleteObject;
 import io.minio.messages.Item;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,10 +51,13 @@ import java.util.stream.Stream;
 public class MediaFileServiceImpl implements MediaFileService {
 
     @Autowired
-    MediaFilesMapper mediaFilesMapper;
+    private MediaFilesMapper mediaFilesMapper;
+
+    @Resource
+    private MediaProcessMapper mediaProcessMapper;
 
     @Autowired
-    MinioClient minioClient;
+    private MinioClient minioClient;
 
     @Autowired
     MediaFileService currentProxy;
@@ -109,6 +115,7 @@ public class MediaFileServiceImpl implements MediaFileService {
      * @param objectName 对象名
      * @return
      */
+    @Override
     public boolean addMediaFilesToMinIO(InputStream inputStream,String mimeType,String bucket, String objectName){
         try {
             // 使用流的形式上传文件
@@ -226,9 +233,39 @@ public class MediaFileServiceImpl implements MediaFileService {
                 log.debug("向数据库保存文件失败,bucket:{},objectName:{}",bucket,objectName);
                 return null;
             }
+            // 记录待处理任务
+            addWaitingTask(mediaFiles);
+
             return mediaFiles;
         }
         return mediaFiles;
+    }
+
+    // 添加待处理任务
+    private void addWaitingTask(MediaFiles mediaFiles){
+        // 文件名称
+        String fileName = mediaFiles.getFilename();
+        // 获取文件的mimeType
+        String extension = fileName.substring(fileName.lastIndexOf("."));
+        String mimeType = getMimeType(extension);
+        // 如果是avi视频则写入待处理任务
+        if(mimeType.equals("video/x-msvideo")){
+            MediaProcess mediaProcess = new MediaProcess();
+            BeanUtils.copyProperties(mediaFiles, mediaProcess);
+            // 设置任务初始状态
+            mediaProcess.setStatus("1");
+            mediaProcess.setFailCount(0);
+            mediaProcess.setCreateDate(LocalDateTime.now());
+            mediaProcess.setUrl(null);
+            try {
+                int result = mediaProcessMapper.insert(mediaProcess);
+                if (result < 0) {
+                    log.error("向数据库保存待处理任务失败,{}", mediaProcess);
+                }
+            }catch (Exception e){
+                log.error("插入数据库异常:,{}", e.getMessage());
+            }
+        }
     }
 
     // 上传前检查文件是否存在
@@ -402,6 +439,36 @@ public class MediaFileServiceImpl implements MediaFileService {
             log.error("清楚分块文件时发生异常: {}", e.getMessage());
             XueChengPlusException.cast("清楚分块文件时发生异常");
         }
+    }
+
+    // 从minio下载文件
+    @Override
+    public File downloadFileFromMinio(String bucket, String objectName){
+        // 临时文件
+        File minioFile = null;
+        FileOutputStream outputStream = null;
+        try {
+            InputStream stream = minioClient.getObject(GetObjectArgs.builder()
+                    .bucket(bucket)
+                    .object(objectName)
+                    .build());
+            //创建临时文件
+            minioFile = File.createTempFile("minio", ".merge");
+            outputStream = new FileOutputStream(minioFile);
+            IOUtils.copy(stream, outputStream);
+            return minioFile;
+        } catch(Exception e){
+            log.error("文件下载出错:{}", e.getMessage());
+        }finally {
+            if(outputStream!=null){
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    log.error("文件输出流关闭失败:{}", e.getMessage());
+                }
+            }
+        }
+        return null;
     }
 
     // 合并后的文件路径
