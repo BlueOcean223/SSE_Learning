@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.xuecheng.base.exception.XueChengPlusException;
 import com.xuecheng.content.mapper.TeachplanMapper;
 import com.xuecheng.content.mapper.TeachplanMediaMapper;
+import com.xuecheng.content.model.dto.BindTeachplanMediaDto;
 import com.xuecheng.content.model.dto.SavaTeachplanDto;
 import com.xuecheng.content.model.dto.TeachplanDto;
 import com.xuecheng.content.model.po.Teachplan;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.sql.Wrapper;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -28,6 +30,7 @@ public class TeachplanServiceImpl implements TeachplanService {
 
     @Resource
     private TeachplanMediaMapper teachplanMediaMapper;
+
 
     /**
      * 根据课程id查询课程计划
@@ -191,6 +194,43 @@ public class TeachplanServiceImpl implements TeachplanService {
             if(result < 2){
                 XueChengPlusException.cast("课程计划下移失败");
             }
+        }
+    }
+
+    /**
+     * 课程计划和媒资信息关联
+     * @param bindTeachplanMediaDto 课程计划和媒资信息关联信息
+     */
+    @Transactional
+    @Override
+    public void associationMedia(BindTeachplanMediaDto bindTeachplanMediaDto){
+        // 校验合法性
+        Long teachplanId = bindTeachplanMediaDto.getTeachplanId();
+        Teachplan teachplan = teachplanMapper.selectById(teachplanId);
+        if(teachplan == null){
+            XueChengPlusException.cast("课程计划不存在");
+        }
+        if(teachplan.getGrade() != 2){
+            XueChengPlusException.cast("只允许第二级课程绑定媒资文件");
+        }
+        Long courseId = teachplan.getCourseId();
+
+        // 先删除原有记录
+        LambdaQueryWrapper<TeachplanMedia> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(TeachplanMedia::getTeachplanId,bindTeachplanMediaDto.getTeachplanId());
+        teachplanMediaMapper.delete(queryWrapper);
+
+        // 再添加新纪录
+        TeachplanMedia teachplanMedia = new TeachplanMedia();
+        teachplanMedia.setCourseId(courseId);
+        teachplanMedia.setTeachplanId(teachplanId);
+        teachplanMedia.setMediaFilename(bindTeachplanMediaDto.getFileName());
+        teachplanMedia.setMediaId(bindTeachplanMediaDto.getMediaId());
+        teachplanMedia.setCreateDate(LocalDateTime.now());
+
+        int result = teachplanMediaMapper.insert(teachplanMedia);
+        if(result <= 0){
+            XueChengPlusException.cast("绑定课程媒资信息失败");
         }
     }
 }
