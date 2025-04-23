@@ -107,7 +107,7 @@ public class DateUtil {
      */
     public static Date format(String strDate, String format) {
         Date d = null;
-        if (null == strDate || "".equals(strDate))
+        if (null == strDate || strDate.isEmpty())
             return null;
         else
             try {
@@ -308,7 +308,7 @@ public class DateUtil {
      *
      * @return
      */
-    public static final String getWeekFirstDay() {
+    public static String getWeekFirstDay() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Calendar cal = Calendar.getInstance();
         int day_of_week = cal.get(Calendar.DAY_OF_WEEK) - 2;
@@ -321,7 +321,7 @@ public class DateUtil {
      *
      * @return
      */
-    public static final String getCurrentMonthFirstDay() {
+    public static String getCurrentMonthFirstDay() {
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         // 当前月的第一天
@@ -335,21 +335,21 @@ public class DateUtil {
      *
      * @return
      */
-    public static final String getYesterdayStart() {
+    public static String getYesterdayStart() {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -1);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return sdf.format(cal.getTime());
     }
 
-    public static final String getYesterdayEnd() {
+    public static String getYesterdayEnd() {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -1);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return sdf.format(cal.getTime()) + " 23:59:59";
     }
 
-    public static final String getCurrDayStart() {
+    public static String getCurrDayStart() {
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return sdf.format(cal.getTime());
@@ -358,7 +358,7 @@ public class DateUtil {
     /**
      * 功能：获取指定月份的第一天<br/>
      */
-    public static final String getStartDayWithMonth(String month) throws ParseException {
+    public static String getStartDayWithMonth(String month) throws ParseException {
         Calendar calendar = new GregorianCalendar();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat mf = new SimpleDateFormat("yyyy-MM");
@@ -371,7 +371,7 @@ public class DateUtil {
     /**
      * 功能：获取指定月份的最后一天<br/>
      */
-    public static final String getEndDayWithMonth(String month) throws ParseException {
+    public static String getEndDayWithMonth(String month) throws ParseException {
         Calendar calendar = new GregorianCalendar();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat mf = new SimpleDateFormat("yyyy-MM");
@@ -381,7 +381,7 @@ public class DateUtil {
         return sdf.format(calendar.getTime());
     }
 
-    public static final String formatYearMonthDay(String dateStr) throws ParseException {
+    public static String formatYearMonthDay(String dateStr) throws ParseException {
         if (StringUtils.isNotBlank(dateStr)) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             Date date = sdf.parse(dateStr);
@@ -395,7 +395,7 @@ public class DateUtil {
      * 功能：<br/>
      * 根据时间 yyyy-MM-dd 获取该日期是本月第几周
      */
-    public static final int getWeekIndexOfMonth(String dateStr) throws ParseException {
+    public static int getWeekIndexOfMonth(String dateStr) throws ParseException {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date date = sdf.parse(dateStr);
@@ -408,7 +408,7 @@ public class DateUtil {
     /**
      * 获取当前时间到指定时间距离多少秒 功能：<br/>
      */
-    public static final int getSecondToDesignationTime(String designationTime) {
+    public static int getSecondToDesignationTime(String designationTime) {
         // 24小时制
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date toDate;
@@ -422,17 +422,17 @@ public class DateUtil {
         return 0;
     }
 
-    public static final int getYear() {
+    public static int getYear() {
         Calendar cal = Calendar.getInstance();
         return cal.get(cal.YEAR);
     }
 
-    public static final int getMonth() {
+    public static int getMonth() {
         Calendar cal = Calendar.getInstance();
         return cal.get(cal.MONTH) + 1;
     }
 
-    public static final int getDay() {
+    public static int getDay() {
         Calendar cal = Calendar.getInstance();
         return cal.get(cal.DATE);
     }

@@ -41,7 +41,7 @@ public class StringUtil {
 	 * @return 是否为空
 	 */
 	public static boolean isBlank(String str) {
-		return str == null || str.trim().length() == 0;
+		return str == null || str.trim().isEmpty();
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class StringUtil {
 	 * @return 是否为非空
 	 */
 	public static boolean isNotBlank(String str) {
-		return false == isBlank(str);
+		return !isBlank(str);
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class StringUtil {
 	 * @return 是否为空
 	 */
 	public static boolean isEmpty(String str) {
-		return str == null || str.length() == 0;
+		return str == null || str.isEmpty();
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class StringUtil {
 	 * @return 是否为非空
 	 */
 	public static boolean isNotEmpty(String str) {
-		return false == isEmpty(str);
+		return !isEmpty(str);
 	}
 
 
@@ -270,7 +270,7 @@ public class StringUtil {
 	 * @return
 	 */
 	public static Long[] stringTOLongArray(String[] str) {
-		Long array[] = new Long[str.length];
+		Long[] array = new Long[str.length];
 		for (int i = 0; i < str.length; i++) {
 			array[i] = Long.parseLong(str[i]);
 		}
@@ -286,7 +286,7 @@ public class StringUtil {
 	 */
 	public static String getFileExt(String src) {
 
-		String filename = src.substring(src.lastIndexOf(File.separator) + 1, src.length());// 获取到文件名
+		String filename = src.substring(src.lastIndexOf(File.separator) + 1);// 获取到文件名
 
 		return filename.substring(filename.lastIndexOf(".") + 1);
 	}
@@ -300,7 +300,7 @@ public class StringUtil {
 	 */
 	public static String getFileName(String src) {
 
-		String filename = src.substring(src.lastIndexOf(File.separator) + 1, src.length());// 获取到文件名
+		String filename = src.substring(src.lastIndexOf(File.separator) + 1);// 获取到文件名
 
 		return filename.substring(0, filename.lastIndexOf("."));
 	}
@@ -313,7 +313,7 @@ public class StringUtil {
 	 */
 	public static boolean isNull(String src) {
 
-		return src == null || src.length() == 0 || src.trim().length() == 0;
+		return src == null || src.isEmpty() || src.trim().isEmpty();
 	}
 
 	/**
@@ -324,14 +324,14 @@ public class StringUtil {
 	 * @return
 	 */
 	public static Boolean checkArrayValue(String[] arr, String checkValue) {
-		Boolean checkFlag = false;
-		if (arr != null && arr.length > 0) {
-			for (int i = 0; i < arr.length; i++) {
-				if (arr[i].equals(checkValue)) {
-					checkFlag = true;
-					break;
-				}
-			}
+		boolean checkFlag = false;
+		if (arr != null) {
+            for (String s : arr) {
+                if (s.equals(checkValue)) {
+                    checkFlag = true;
+                    break;
+                }
+            }
 		}
 		return checkFlag;
 	}
@@ -344,10 +344,10 @@ public class StringUtil {
 	 * @return
 	 */
 	public static Boolean isContains(String[] arr, String checkValue) {
-		Boolean checkFlag = false;
-		if (arr != null && arr.length > 0) {
+		boolean checkFlag = false;
+		if (arr != null) {
 			for (String str : arr) {
-				if (checkValue.indexOf(str)!=-1) {
+				if (checkValue.contains(str)) {
 					checkFlag = true;
 					break;
 				}

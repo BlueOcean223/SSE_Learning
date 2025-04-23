@@ -61,4 +61,7 @@ public interface MediaFileService {
 
  // 从minio下载文件
  File downloadFileFromMinio(String bucket, String objectName);
+
+ // 根据媒资id查询媒资信息
+ MediaFiles getFileById(String mediaId);
 }

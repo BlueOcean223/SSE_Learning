@@ -441,6 +441,7 @@ public class MediaFileServiceImpl implements MediaFileService {
         }
     }
 
+
     // 从minio下载文件
     @Override
     public File downloadFileFromMinio(String bucket, String objectName){
@@ -469,6 +470,12 @@ public class MediaFileServiceImpl implements MediaFileService {
             }
         }
         return null;
+    }
+
+    // 根据媒资id查询媒资信息
+    @Override
+    public MediaFiles getFileById(String mediaId) {
+        return mediaFilesMapper.selectById(mediaId);
     }
 
     // 合并后的文件路径
