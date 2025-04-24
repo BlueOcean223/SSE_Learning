@@ -37,9 +37,10 @@ public interface MediaFileService {
   * 上传文件
   * @param companyId 机构id
   * @param filedata 文件数据
+  * @param objectName 期望存储的文件名称
   * @return UploadFileResultDto
   */
- public UploadFileResultDto uploadFile(Long companyId, MultipartFile filedata);
+ public UploadFileResultDto uploadFile(Long companyId, MultipartFile filedata,String objectName);
 
  // 添加文件到数据库
  public MediaFiles addMediaFilesToDb(Long companyId,String fileMd5,UploadFileParamsDto uploadFileParamsDto,String bucket,String objectName);

@@ -143,7 +143,7 @@ public class MediaFileServiceImpl implements MediaFileService {
     }
 
     @Override
-    public UploadFileResultDto uploadFile(Long companyId, MultipartFile filedata){
+    public UploadFileResultDto uploadFile(Long companyId, MultipartFile filedata,String objectName){
 
         //准备上传文件的信息
         UploadFileParamsDto uploadFileParamsDto = new UploadFileParamsDto();
@@ -167,10 +167,12 @@ public class MediaFileServiceImpl implements MediaFileService {
         //文件的md5值
         String fileMd5 = "";
         boolean result = false;
-        String objectName = "";
         try{
             fileMd5 = DigestUtils.md5Hex(filedata.getInputStream());
-            objectName = defaultFolderPath+fileMd5+extension;
+            if(StringUtils.isEmpty(objectName)) {
+                // 如果文件路径为空，则使用默认的日期存储路径
+                objectName = defaultFolderPath + fileMd5 + extension;
+            }
             //上传文件到minio
             result = addMediaFilesToMinIO(filedata.getInputStream(), mimeType, bucket_mediafiles, objectName);
         }catch (IOException e){

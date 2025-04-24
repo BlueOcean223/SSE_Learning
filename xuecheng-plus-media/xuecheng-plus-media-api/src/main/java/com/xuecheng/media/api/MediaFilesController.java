@@ -39,10 +39,11 @@ public class MediaFilesController {
 
  @ApiOperation("上传图片")
  @RequestMapping(value = "/upload/coursefile",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-public UploadFileResultDto upload(@RequestPart("filedata")MultipartFile filedata){
+public UploadFileResultDto upload(@RequestPart("filedata")MultipartFile filedata,
+                                  @RequestParam(value = "objectName",required = false) String objectName){
      Long companyId = 1232141425L;
      //调用service上传图片
-     return mediaFileService.uploadFile(companyId,filedata);
+     return mediaFileService.uploadFile(companyId,filedata,objectName);
  }
 
 }
