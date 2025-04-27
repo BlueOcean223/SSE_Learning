@@ -11,12 +11,12 @@ import org.springframework.context.annotation.Configuration;
 public class ElasticsearchConfig {
 
     @Value("${elasticsearch.hostlist}")
-    private String hostlist;
+    private String hostList;
 
     @Bean
     public RestHighLevelClient restHighLevelClient(){
-        //解析hostlist配置信息
-        String[] split = hostlist.split(",");
+        //解析hostList配置信息
+        String[] split = hostList.split(",");
         //创建HttpHost数组，其中存放es主机和端口的配置信息
         HttpHost[] httpHostArray = new HttpHost[split.length];
         for(int i=0;i<split.length;i++){

@@ -32,14 +32,13 @@ public class IndexServiceImpl implements IndexService {
 
 
  @Resource
- RestHighLevelClient client;
+ private RestHighLevelClient client;
 
  @Override
  public Boolean addCourseIndex(String indexName,String id,Object object) {
-  String jsonString = JSON.toJSONString(object);
   IndexRequest indexRequest = new IndexRequest(indexName).id(id);
   //指定索引文档内容
-  indexRequest.source(jsonString,XContentType.JSON);
+  indexRequest.source(JSON.toJSONString(object),XContentType.JSON);
   //索引响应对象
   IndexResponse indexResponse = null;
   try {
@@ -58,9 +57,8 @@ public class IndexServiceImpl implements IndexService {
  @Override
  public Boolean updateCourseIndex(String indexName,String id,Object object) {
 
-  String jsonString = JSON.toJSONString(object);
   UpdateRequest updateRequest = new UpdateRequest(indexName, id);
-  updateRequest.doc(jsonString, XContentType.JSON);
+  updateRequest.doc(JSON.toJSONString(object), XContentType.JSON);
   UpdateResponse updateResponse = null;
   try {
    updateResponse = client.update(updateRequest, RequestOptions.DEFAULT);

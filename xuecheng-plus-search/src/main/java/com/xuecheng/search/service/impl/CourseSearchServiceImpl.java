@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +48,8 @@ public class CourseSearchServiceImpl implements CourseSearchService {
     @Value("${elasticsearch.course.source_fields}")
     private String sourceFields;
 
-    @Autowired
-    RestHighLevelClient client;
+    @Resource
+    private RestHighLevelClient client;
 
     @Override
     public SearchPageResultDto<CourseIndex> queryCoursePubIndex(PageParams pageParams, SearchCourseParamDto courseSearchParam) {
@@ -109,7 +110,7 @@ public class CourseSearchServiceImpl implements CourseSearchService {
         } catch (IOException e) {
             e.printStackTrace();
             log.error("课程搜索异常：{}",e.getMessage());
-            return new SearchPageResultDto<CourseIndex>(new ArrayList(),0,0,0);
+            return new SearchPageResultDto<>(new ArrayList<>(), 0, 0, 0);
         }
 
         //结果集处理
@@ -125,8 +126,6 @@ public class CourseSearchServiceImpl implements CourseSearchService {
             String sourceAsString = hit.getSourceAsString();
             CourseIndex courseIndex = JSON.parseObject(sourceAsString, CourseIndex.class);
 
-            //取出source
-            Map<String, Object> sourceAsMap = hit.getSourceAsMap();
 
             //课程id
             Long id = courseIndex.getId();
@@ -138,11 +137,11 @@ public class CourseSearchServiceImpl implements CourseSearchService {
                 HighlightField nameField = highlightFields.get("name");
                 if(nameField!=null){
                     Text[] fragments = nameField.getFragments();
-                    StringBuffer stringBuffer = new StringBuffer();
+                    StringBuilder stringBuilder = new StringBuilder();
                     for (Text str : fragments) {
-                        stringBuffer.append(str.string());
+                        stringBuilder.append(str.string());
                     }
-                    name = stringBuffer.toString();
+                    name = stringBuilder.toString();
 
                 }
             }

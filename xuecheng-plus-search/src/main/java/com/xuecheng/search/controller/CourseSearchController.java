@@ -11,19 +11,18 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
+
 /**
- * @description 课程搜索接口
- * @author Mr.M
- * @date 2022/9/24 22:31
- * @version 1.0
+ * 课程搜索接口
  */
 @Api(value = "课程搜索接口",tags = "课程搜索接口")
  @RestController
  @RequestMapping("/course")
 public class CourseSearchController {
 
- @Autowired
- CourseSearchService courseSearchService;
+ @Resource
+ private CourseSearchService courseSearchService;
 
 
  @ApiOperation("课程搜索列表")
