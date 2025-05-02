@@ -272,4 +272,17 @@ public class CoursePublishServiceImpl implements CoursePublishService {
         }
     }
 
+    /**
+     * 根据id查询课程发布消息
+     * @param courseId 课程id
+     * @return
+     */
+    @Override
+    public CoursePublish getCoursePubliah(Long courseId){
+        if(courseId == null){
+            XueChengPlusException.cast("课程id为空");
+        }
+        return coursePublishMapper.selectById(courseId);
+    }
+
 }
