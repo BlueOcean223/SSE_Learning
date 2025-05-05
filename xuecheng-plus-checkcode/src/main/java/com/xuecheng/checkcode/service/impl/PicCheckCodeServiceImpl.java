@@ -1,11 +1,11 @@
 package com.xuecheng.checkcode.service.impl;
 
 import com.google.code.kaptcha.impl.DefaultKaptcha;
-import com.xuecheng.base.utils.EncryptUtil;
 import com.xuecheng.checkcode.model.CheckCodeParamsDto;
 import com.xuecheng.checkcode.model.CheckCodeResultDto;
 import com.xuecheng.checkcode.service.AbstractCheckCodeService;
 import com.xuecheng.checkcode.service.CheckCodeService;
+import com.xuecheng.checkcode.utils.EncryptUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sun.misc.BASE64Encoder;

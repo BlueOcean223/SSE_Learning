@@ -23,4 +23,9 @@ public class AuthApplication {
         SpringApplication.run(AuthApplication.class, args);
     }
 
+    // 手动配置RestTemplate
+    @Bean
+    public RestTemplate restTemplate(){
+        return new RestTemplate();
+    }
 }
